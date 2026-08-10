@@ -1,5 +1,6 @@
 import './App.css';
 import Clock from './components/Clock';
+import Weather  from './components/Weather';
 
 function App() {
   return (
@@ -15,8 +16,8 @@ function App() {
       </div>
       
       <div className="top-right">
-        <h2>72°</h2>
-        <p>Clear Skies</p>
+        <h2><Weather/></h2>
+       
       </div>
 
       {/* --- MIDDLE ROW --- */}
