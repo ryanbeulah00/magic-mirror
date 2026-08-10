@@ -1,7 +1,50 @@
 .dashboard-container {
-  padding: 2rem;
-  width: 100%;
-  height: 100%;
-  
-  /* Later, we can apply CSS Grid here to split the screen into zones */
+  display: grid;
+  /* 3 equal columns */
+  grid-template-columns: 1fr 1fr 1fr;
+  /* Top auto-fits content, Middle stretches, Bottom auto-fits content */
+  grid-template-rows: auto 1fr auto;
+  gap: 2rem;
+  padding: 3rem; /* Keep text away from the physical bezel */
+  width: 100vw;
+  height: 100vh;
 }
+
+/* Zone Alignments */
+.top-left { text-align: left; }
+.top-right { text-align: right; }
+.top-center { text-align: center; }
+
+.middle-center {
+  grid-column: 2; /* Force into center column */
+  grid-row: 2;    /* Force into middle row */
+  text-align: center;
+  align-self: center;
+}
+
+/* Bottom elements need to align to the bottom edge of their cells */
+.bottom-left {
+  grid-column: 1;
+  grid-row: 3;
+  text-align: left;
+  align-self: end;
+}
+
+.bottom-center {
+  grid-column: 2;
+  grid-row: 3;
+  text-align: center;
+  align-self: end;
+}
+
+.bottom-right {
+  grid-column: 3;
+  grid-row: 3;
+  text-align: right;
+  align-self: end;
+}
+
+/* Base typography styling for the widgets */
+h2 { font-size: 3rem; font-weight: 300; margin-bottom: 0.2rem; }
+h3 { font-size: 1.5rem; font-weight: 400; color: #aaaaaa; }
+p { font-size: 1.2rem; color: #cccccc; }
