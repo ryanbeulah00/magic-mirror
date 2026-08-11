@@ -14,6 +14,7 @@
 .top-left { text-align: left; }
 .top-right { text-align: right; }
 .top-center { text-align: center; }
+.middle-left { text-align: left; }
 
 .middle-center {
   grid-column: 2; /* Force into center column */

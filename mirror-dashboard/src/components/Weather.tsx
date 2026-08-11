@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { fetchWeatherApi } from 'openmeteo';
 
-
 // 1. Define the shape of the data based on your parsing logic
 interface WeatherData {
   current: {
