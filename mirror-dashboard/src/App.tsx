@@ -21,10 +21,14 @@ function App() {
       </div>
 
       {/* --- MIDDLE ROW --- */}
+      <div className = "middle-left">
+        <h3>Notion</h3>
+      </div>
+
       <div className="middle-center">
         {/* Left intentionally blank for your physical reflection */}
       </div>
-
+      
       {/* --- BOTTOM ROW --- */}
       <div className="bottom-left">
         <h3>ESP32 Sensors</h3>

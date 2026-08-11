@@ -29,7 +29,7 @@ export default function Clock() {
 
   return (
     <>
-      <div>{formattedDate}</div>
+      <div><p>{formattedDate}</p></div>
       <div>{formattedTime}</div>
       
     </>
