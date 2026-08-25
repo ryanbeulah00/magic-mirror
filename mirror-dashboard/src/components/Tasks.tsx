@@ -1,19 +1,29 @@
-import { useState, useEffect } from 'react';
+﻿import { useEffect, useState } from 'react';
 
-// 1. Define the shape of individual tasks in the new API
 interface Task {
   id: string;
   content: string;
+  completed?: boolean;
   due?: {
     date: string;
     string?: string;
   } | null;
 }
 
-// 2. Define the outer API wrapper response shape
-interface ApiResponse {
-  results: Task[];
-}
+type ApiResponse = Task[] | { results?: Task[] };
+const FIVE_MINUTES_MS = 5 * 60 * 1000;
+
+const normalizeTasks = (payload: ApiResponse): Task[] => {
+  if (Array.isArray(payload)) {
+    return payload.filter((task) => task && !task.completed).slice(0, 5);
+  }
+
+  if (payload && Array.isArray(payload.results)) {
+    return payload.results.filter((task) => task && !task.completed).slice(0, 5);
+  }
+
+  return [];
+};
 
 const Tasks = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -26,12 +36,8 @@ const Tasks = () => {
         if (!response.ok) throw new Error('Failed to fetch tasks');
 
         const data: ApiResponse = await response.json();
-
-        if (data && Array.isArray(data.results)) {
-          setTasks(data.results.slice(0, 5));
-        } else {
-          setTasks([]);
-        }
+        setTasks(normalizeTasks(data));
+        setError(null);
       } catch (err) {
         console.error(err);
         setError('Tasks offline');
@@ -40,14 +46,66 @@ const Tasks = () => {
 
     fetchTasks();
 
+    const refreshTimer = window.setInterval(() => {
+      fetchTasks();
+    }, FIVE_MINUTES_MS);
+
     const sse = new EventSource('http://localhost:3001/api/tasks/stream');
 
-    sse.onmessage = () => {
-      console.log('Update received! Fetching fresh tasks...');
+    sse.onopen = () => {
+      console.log('Todoist stream connected');
+    };
+
+    sse.onmessage = (e) => {
+      try {
+        const payload = JSON.parse(e.data || '{}');
+        if (payload && payload.item && payload.item.content) {
+          console.log('Todoist update received with item payload. Updating tasks locally...');
+          setTasks((prev) => {
+            const newTask: any = payload.item;
+            if (newTask.completed) return prev;
+            if (prev.find((t) => String(t.id) === String(newTask.id))) return prev;
+            const merged = [newTask, ...prev];
+            return normalizeTasks(merged as ApiResponse);
+          });
+          setError(null);
+          return;
+        }
+      } catch (err) {
+        // ignore parse errors
+      }
+      console.log('Todoist update received. Refreshing tasks...');
       fetchTasks();
     };
 
+    sse.addEventListener('task-update', (e) => {
+      try {
+        const payload = JSON.parse(e.data || '{}');
+        if (payload && payload.item && payload.item.content) {
+          console.log('Task update event received with item payload. Updating tasks locally...');
+          setTasks((prev) => {
+            const newTask: any = payload.item;
+            if (newTask.completed) return prev;
+            if (prev.find((t) => String(t.id) === String(newTask.id))) return prev;
+            const merged = [newTask, ...prev];
+            return normalizeTasks(merged as ApiResponse);
+          });
+          setError(null);
+          return;
+        }
+      } catch (err) {
+        // ignore parse errors
+      }
+      console.log('Task update event received. Refreshing tasks...');
+      fetchTasks();
+    });
+
+    sse.onerror = () => {
+      setError('Tasks offline');
+    };
+
     return () => {
+      window.clearInterval(refreshTimer);
       sse.close();
     };
   }, []);
