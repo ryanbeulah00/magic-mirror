@@ -1,7 +1,7 @@
 import './App.css';
 import Clock from './components/Clock';
 import Weather  from './components/Weather';
-
+import Tasks from './components/Tasks';
 function App() {
   return (
     <div className="dashboard-container">
@@ -22,7 +22,7 @@ function App() {
 
       {/* --- MIDDLE ROW --- */}
       <div className = "middle-left">
-        <h3>Notion</h3>
+        <Tasks/>
       </div>
 
       <div className="middle-center">
